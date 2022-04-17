@@ -1,0 +1,22 @@
+{
+  "name": "orbitdb-playground",
+  "version": "1.0.0",
+  "description": "play with orbitdb",
+  "main": "index.js",
+  "repository": "git@github.com:ilovelili/orbitdb-playground.git",
+  "author": "ilovelili <route666@live.cn>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "ts-node ./src/index.ts"
+  },
+  "dependencies": {
+    "orbit-db": "^0.28.3",
+    "ipfs": "^0.62.2"
+  },
+  "devDependencies": {
+    "@types/orbit-db": "github:orbitdb/orbit-db-types",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  }
+}
