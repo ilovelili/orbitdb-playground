@@ -3,6 +3,7 @@ import { create } from "ipfs";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { default as KeyResolver } from "key-did-resolver";
 
+// orbit-db doc: https://github.com/orbitdb/orbit-db/blob/main/API.md
 const initOrbitDB = async () => {
   const ipfsOptions = { repo: "./ipfs" };
   const ipfs = await create(ipfsOptions);
@@ -19,8 +20,17 @@ const initOrbitDB = async () => {
     didProvider,
   });
 
+  const ipfsId = (await ipfs.id()).id;
+
   // create db instance
-  const orbitdb = await OrbitDB.createInstance(ipfs, { identity });
+  // can be both IPFS instance or IPFS daemon
+  // https://github.com/orbitdb/orbit-db#module-with-ipfs-instance
+  const orbitdb = await OrbitDB.createInstance(ipfs, {
+    identity,
+    // @ts-ignore offline mode with an id
+    offline: true,
+    id: ipfsId,
+  });
 
   // init a keyvalue db
   const db = await orbitdb.kvstore("kvstore", {
