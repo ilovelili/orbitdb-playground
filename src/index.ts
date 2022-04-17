@@ -23,7 +23,7 @@ const initOrbitDB = async () => {
   const orbitdb = await OrbitDB.createInstance(ipfs, { identity });
 
   // init a keyvalue db
-  const db = await orbitdb.keyvalue("keyvalue", {
+  const db = await orbitdb.kvstore("kvstore", {
     // Give write access to ourselves
     accessController: {
       // here we need to assign identity.id, not identity.publicKey
@@ -34,20 +34,29 @@ const initOrbitDB = async () => {
   console.log("db address", db.address.toString());
   console.log("db identity publickey", db.identity.publicKey);
 
+  // orbit-db-store events https://github.com/orbitdb/orbit-db-store
+  db.events.on("load", (address) => {
+    console.log("db loaded");
+    console.log(address);
+  });
+
+  db.events.on("ready", (address) => {
+    console.log("db ready");
+    console.log(address);
+  });
+
   // load locally the persisted before using the database.
   // loading the database locally before using it is highly recommended
   await db.load();
-  console.log("db loaded");
-
   return db;
 };
 
 async function main() {
   const db = await initOrbitDB();
 
-  await db.put("key1", "hello1");
-  await db.put("key2", "hello2");
-  await db.put("key3", "hello3");
+  console.log(await db.put("key1", "hello1"));
+  console.log(await db.put("key2", "hello2"));
+  console.log(await db.put("key3", "hello3"));
 
   console.log("key3 is", db.get("key3"));
 }
