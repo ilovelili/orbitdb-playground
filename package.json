@@ -11,8 +11,9 @@
     "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
+    "ipfs": "^0.62.2",
     "orbit-db": "^0.28.3",
-    "ipfs": "^0.62.2"
+    "orbit-db-identity-provider": "^0.4.0"
   },
   "devDependencies": {
     "@types/orbit-db": "github:orbitdb/orbit-db-types",
