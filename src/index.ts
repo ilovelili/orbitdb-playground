@@ -1,13 +1,23 @@
 import OrbitDB from "orbit-db";
 import { create } from "ipfs";
-import Identities from "orbit-db-identity-provider";
+import { Ed25519Provider } from "key-did-provider-ed25519";
+import { default as KeyResolver } from "key-did-resolver";
 
 const initOrbitDB = async () => {
   const ipfsOptions = { repo: "./ipfs" };
   const ipfs = await create(ipfsOptions);
 
-  // create identity
-  const identity = await Identities.createIdentity({ id: "local-id" });
+  // create identity (with a DID)
+  // https://github.com/orbitdb/orbit-db-identity-provider
+  const Identities = require("orbit-db-identity-provider");
+  Identities.DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver());
+
+  const seed = new Uint8Array(32);
+  const didProvider = new Ed25519Provider(seed);
+  const identity = await Identities.createIdentity({
+    type: "DID",
+    didProvider,
+  });
 
   // create db instance
   const orbitdb = await OrbitDB.createInstance(ipfs, { identity });
