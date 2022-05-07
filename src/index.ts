@@ -3,6 +3,7 @@ import { create } from "ipfs";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { default as KeyResolver } from "key-did-resolver";
 // import { default as ThreeDIDResolver } from "@ceramicnetwork/3id-did-resolver";
+import fs from "fs";
 
 // orbit-db doc: https://github.com/orbitdb/orbit-db/blob/main/API.md
 const initOrbitDB = async () => {
@@ -33,14 +34,18 @@ const initOrbitDB = async () => {
     id: ipfsId,
   });
 
-  // init a keyvalue db
-  const db = await orbitdb.kvstore("kvstore", {
-    // Give write access to ourselves
-    accessController: {
-      // here we need to assign identity.id, not identity.publicKey
-      write: [identity.id],
-    },
-  });
+  // // init a keyvalue db
+  // const db = await orbitdb.kvstore("kvstore", {
+  //   // Give write access to ourselves
+  //   accessController: {
+  //     // here we need to assign identity.id, not identity.publicKey
+  //     write: [identity.id],
+  //   },
+  // });
+
+  // init a docstore db
+  // const db = await orbitdb.docstore("dna", { Index: "did" }); // indexed by user's did
+  const db = await orbitdb.docstore("dna"); // by default indexed by _id field
 
   console.log("db address", db.address.toString());
   console.log("db identity publickey", db.identity.publicKey);
@@ -56,6 +61,11 @@ const initOrbitDB = async () => {
     console.log(address);
   });
 
+  db.events.on("data", (dbname, event) => {
+    console.log("db name", dbname);
+    console.log("event", event);
+  });
+
   // load locally the persisted before using the database.
   // loading the database locally before using it is highly recommended
   await db.load();
@@ -65,11 +75,17 @@ const initOrbitDB = async () => {
 async function main() {
   const db = await initOrbitDB();
 
-  console.log(await db.put("key1", "hello1"));
-  console.log(await db.put("key2", "hello2"));
-  console.log(await db.put("key3", "hello3"));
+  // console.log(await db.put("key1", "hello1"));
+  // console.log(await db.put("key2", "hello2"));
+  // console.log(await db.put("key3", "hello3"));
 
-  console.log("key3 is", db.get("key3"));
+  // console.log("key3 is", db.get("key3"));
+
+  const content = fs.readFileSync("./file/test.txt");
+  // the id can be user's 3id did
+  console.log(await db.put({ _id: "did:3:123", doc: content.toString() }));
+
+  console.log("content in db", db.get("did:3:123"));
 }
 
 main();
