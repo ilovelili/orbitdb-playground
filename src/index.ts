@@ -2,17 +2,17 @@ import OrbitDB from "orbit-db";
 import { create } from "ipfs";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { default as KeyResolver } from "key-did-resolver";
+// import { default as ThreeDIDResolver } from "@ceramicnetwork/3id-did-resolver";
 
 // orbit-db doc: https://github.com/orbitdb/orbit-db/blob/main/API.md
 const initOrbitDB = async () => {
   const ipfsOptions = { repo: "./ipfs" };
   const ipfs = await create(ipfsOptions);
 
-  // create identity (with a DID)
+  // create identity (with a did:key)
   // https://github.com/orbitdb/orbit-db-identity-provider
   const Identities = require("orbit-db-identity-provider");
   Identities.DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver());
-
   const seed = new Uint8Array(32);
   const didProvider = new Ed25519Provider(seed);
   const identity = await Identities.createIdentity({
@@ -25,6 +25,7 @@ const initOrbitDB = async () => {
   // create db instance
   // can be both IPFS instance or IPFS daemon
   // https://github.com/orbitdb/orbit-db#module-with-ipfs-instance
+  // offline explained: https://github.com/orbitdb/orbit-db/blob/main/API.md
   const orbitdb = await OrbitDB.createInstance(ipfs, {
     identity,
     // @ts-ignore offline mode with an id
